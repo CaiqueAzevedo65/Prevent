@@ -1,6 +1,21 @@
-# 📋 Plano de Melhorias - Prevent
+# 📋 Plano de Desenvolvimento - Prevent
 
-## 🔴 Prioridade Alta (Crítico)
+> Sistema multiplataforma de monitoramento de desastres naturais
+
+## 🏗️ Arquitetura do Sistema
+
+```
+Prevent/
+├── frontend/          # React Web App (Vite + Bootstrap)
+├── mobile/            # React Native App (TailwindCSS) [A CRIAR]
+└── backend/           # FastAPI (Python Async) [A CRIAR]
+```
+
+---
+
+## 🎯 FASE 1: Correções Críticas do Frontend (Sprint 1-2 semanas)
+
+### 🔴 Prioridade Alta (Crítico)
 
 - [ ] **Corrigir caminhos de imagens**
   - Alterar `/public/images/` para `/images/` em todos os arquivos
@@ -27,7 +42,7 @@
   - Criar dados de coordenadas para cada estado
   - Atualizar mapa baseado no estado/cidade selecionado
 
-## 🟡 Prioridade Média (Importante)
+### 🟡 Prioridade Média (Importante)
 
 - [ ] **Implementar persistência de configurações**
   - Salvar dados do formulário em `localStorage`
@@ -59,7 +74,7 @@
   - Remover componente se não for necessário
   - Evitar código morto no projeto
 
-## 🟢 Prioridade Baixa (Melhorias)
+### 🟢 Prioridade Baixa (Melhorias)
 
 - [ ] **Adicionar testes automatizados**
   - Instalar Jest e React Testing Library
@@ -109,6 +124,348 @@
   - Extrair constantes e magic numbers
   - Melhorar organização de imports
 
+---
+
+## ⚡ FASE 2: Backend FastAPI (Sprint 3-6 semanas)
+
+### Estrutura do Backend
+
+```
+backend/
+├── main.py              # Entry point FastAPI
+├── requirements.txt
+├── .env.example
+├── alembic/             # Migrações de banco
+│   └── versions/
+├── app/
+│   ├── __init__.py
+│   ├── core/            # Configurações, segurança, deps
+│   │   ├── config.py
+│   │   ├── security.py
+│   │   └── database.py
+│   ├── models/          # SQLAlchemy models
+│   │   ├── user.py
+│   │   ├── location.py
+│   │   ├── disaster.py
+│   │   ├── alert.py
+│   │   └── notification.py
+│   ├── schemas/         # Pydantic schemas
+│   │   ├── user.py
+│   │   ├── location.py
+│   │   ├── disaster.py
+│   │   └── alert.py
+│   ├── api/             # Rotas da API
+│   │   ├── v1/
+│   │   │   ├── endpoints/
+│   │   │   │   ├── auth.py
+│   │   │   │   ├── users.py
+│   │   │   │   ├── locations.py
+│   │   │   │   ├── disasters.py
+│   │   │   │   ├── alerts.py
+│   │   │   │   └── notifications.py
+│   │   │   └── api.py
+│   │   └── deps.py      # Dependências
+│   ├── services/        # Lógica de negócio
+│   │   ├── auth.py
+│   │   ├── disaster.py
+│   │   ├── alert.py
+│   │   └── notification.py
+│   ├── external/        # APIs externas
+│   │   ├── inmet.py
+│   │   ├── cemaden.py
+│   │   └── inpe.py
+│   └── utils/           # Funções utilitárias
+└── tests/               # Testes automatizados
+```
+
+### 🔴 Backend - Prioridade Alta
+
+- [ ] **Setup inicial do projeto FastAPI**
+  - Criar estrutura de pastas `/backend`
+  - Configurar FastAPI com SQLAlchemy (async)
+  - Configurar PostgreSQL com asyncpg
+  - Setup de variáveis de ambiente (pydantic-settings)
+  - Configurar CORS para comunicação com frontend
+  - Configurar Alembic para migrações
+
+- [ ] **Módulo `locations` - Localidades**
+  - Models (SQLAlchemy): Estado, Cidade, Bairro, AreaDeRisco
+  - Schemas (Pydantic): validação de entrada/saída
+  - Routers com filtros e paginação
+  - Endpoints: `/api/v1/estados/`, `/api/v1/cidades/`, `/api/v1/bairros/`
+  - Popular banco com dados dos 27 estados brasileiros
+
+- [ ] **Módulo `disasters` - Desastres**
+  - Models (SQLAlchemy): TipoDesastre, Desastre, HistoricoDesastre
+  - Schemas (Pydantic) com validações
+  - Endpoints: `/api/v1/desastres/`, `/api/v1/historico/`
+  - Sistema de categorização (enchente, deslizamento, incêndio, etc.)
+
+- [ ] **Módulo `alerts` - Alertas**
+  - Models (SQLAlchemy): Alerta, NivelRisco
+  - Sistema de priorização de alertas
+  - Endpoints: `/api/v1/alertas/`, `/api/v1/alertas/ativos/`
+  - Filtros por localização e tipo
+
+- [ ] **Integração com APIs externas**
+  - INMET (meteorologia)
+  - CEMADEN (alertas de desastres)
+  - INPE (queimadas)
+  - Usar httpx async para requisições
+  - Background tasks com FastAPI BackgroundTasks
+  - Sistema de cache com Redis
+
+- [ ] **Documentação da API**
+  - Swagger UI automático do FastAPI
+  - ReDoc automático
+  - Documentar schemas Pydantic
+  - Exemplos de requisições e respostas
+  - Versionamento da API (v1)
+
+### 🟡 Backend - Prioridade Média
+
+- [ ] **Módulo `users` - Autenticação**
+  - JWT com python-jose
+  - OAuth2 com Password Flow
+  - Models: User, UserProfile, UserPreferences
+  - Endpoints: `/api/v1/auth/register/`, `/api/v1/auth/login/`
+  - Sistema de permissões com dependencies
+
+- [ ] **Módulo `notifications` - Notificações**
+  - Models: Notification, NotificationPreference
+  - Integração com Firebase Cloud Messaging (async)
+  - Sistema de templates de notificação
+  - Endpoints: `/api/v1/notificacoes/`
+  - Background tasks para envio assíncrono
+
+- [ ] **Sistema de busca avançada**
+  - Elasticsearch ou PostgreSQL Full-Text Search
+  - Busca por cidade, bairro, tipo de desastre
+  - Autocomplete para busca
+
+- [ ] **Testes automatizados**
+  - Testes com pytest + pytest-asyncio
+  - TestClient do FastAPI
+  - Testes de integração
+  - Coverage mínimo de 80%
+  - CI/CD com GitHub Actions
+
+### 🟢 Backend - Prioridade Baixa
+
+- [ ] **Sistema de relatórios**
+  - Geração de PDFs com dados estatísticos
+  - Exportação de dados (CSV, JSON)
+  - Dashboard administrativo customizado
+
+- [ ] **Sistema de denúncias/relatos**
+  - Usuários podem reportar situações
+  - Moderação de conteúdo
+  - Validação de informações
+
+- [ ] **WebSockets para alertas em tempo real**
+  - WebSockets nativos do FastAPI
+  - Notificações push instantâneas
+  - Status de conexão
+  - Broadcast de alertas
+
+---
+
+## 📱 FASE 3: Mobile React Native (Sprint 7-10 semanas)
+
+### Estrutura do Mobile
+
+```
+mobile/
+├── App.tsx
+├── package.json
+├── tailwind.config.js
+├── src/
+│   ├── screens/         # Telas do app
+│   ├── components/      # Componentes reutilizáveis
+│   ├── navigation/      # React Navigation
+│   ├── services/        # API calls
+│   ├── hooks/           # Custom hooks
+│   ├── store/           # State management (Zustand/Redux)
+│   ├── utils/           # Funções utilitárias
+│   └── types/           # TypeScript types
+├── android/
+└── ios/
+```
+
+### 🔴 Mobile - Prioridade Alta
+
+- [ ] **Setup inicial React Native**
+  - Criar projeto com Expo ou React Native CLI
+  - Configurar TypeScript
+  - Configurar NativeWind (TailwindCSS para RN)
+  - Setup de navegação (React Navigation)
+
+- [ ] **Telas principais**
+  - Home com lista de estados
+  - Detalhes de estado/cidade
+  - Mapa interativo (react-native-maps)
+  - Histórico de desastres
+  - Perfil e configurações
+
+- [ ] **Integração com backend**
+  - Configurar Axios/Fetch
+  - Gerenciamento de estado (Zustand ou Redux Toolkit)
+  - Cache de dados (React Query)
+  - Tratamento de erros
+
+- [ ] **Autenticação**
+  - Login/Registro
+  - Armazenamento seguro de tokens (AsyncStorage + Keychain)
+  - Refresh token automático
+
+- [ ] **Sistema de notificações push**
+  - Firebase Cloud Messaging
+  - Permissões de notificação
+  - Deep linking para alertas
+
+### 🟡 Mobile - Prioridade Média
+
+- [ ] **Geolocalização**
+  - Detectar localização do usuário
+  - Alertas baseados em proximidade
+  - Permissões de localização
+
+- [ ] **Modo offline**
+  - Cache de dados essenciais
+  - Sincronização ao reconectar
+  - Indicador de status de conexão
+
+- [ ] **Compartilhamento**
+  - Compartilhar alertas via redes sociais
+  - Share de mapas e estatísticas
+
+### 🟢 Mobile - Prioridade Baixa
+
+- [ ] **Testes automatizados**
+  - Jest + React Native Testing Library
+  - Testes E2E com Detox
+
+- [ ] **Otimizações**
+  - Code splitting
+  - Lazy loading de imagens
+  - Performance monitoring
+
+- [ ] **Acessibilidade**
+  - Screen readers
+  - Navegação por voz
+  - Contraste e tamanho de fonte
+
+---
+
+## 🔄 FASE 4: Integração e Deploy (Sprint 11-12 semanas)
+
+### Frontend Web
+
+- [ ] **Integrar com backend FastAPI**
+  - Substituir dados mockados por API calls
+  - Implementar autenticação JWT
+  - Gerenciamento de estado global (Context API ou Zustand)
+  - Tratamento de erros e loading states
+
+- [ ] **Deploy frontend**
+  - Vercel ou Netlify
+  - Configurar variáveis de ambiente
+  - CI/CD automatizado
+  - CDN para assets
+
+### Backend
+
+- [ ] **Deploy backend**
+  - Railway, Render, ou AWS/GCP
+  - PostgreSQL em produção
+  - Redis para cache
+  - Uvicorn com workers
+  - Configurar domínio e SSL
+
+- [ ] **Monitoramento**
+  - Sentry para error tracking
+  - Logs estruturados
+  - Métricas de performance
+  - Uptime monitoring
+
+### Mobile
+
+- [ ] **Deploy mobile**
+  - Google Play Store (Android)
+  - Apple App Store (iOS)
+  - Configurar versioning
+  - Sistema de updates OTA (Expo)
+
+---
+
+## 📊 Estimativas de Tempo
+
+| Fase | Duração | Descrição |
+|------|---------|-----------|
+| **Fase 1** | 2 semanas | Correções críticas do frontend |
+| **Fase 2** | 4 semanas | Backend Django completo |
+| **Fase 3** | 4 semanas | Mobile React Native |
+| **Fase 4** | 2 semanas | Integração e deploy |
+| **Total** | **12 semanas** | ~3 meses para MVP completo |
+
+---
+
+## 🛠️ Stack Tecnológica Completa
+
+### Frontend Web
+- React 19 + Vite
+- React Router DOM
+- Bootstrap 5 + Styled Components
+- Leaflet (mapas)
+- Chart.js + Recharts
+- Axios
+- Zustand (state management)
+
+### Mobile
+- React Native + Expo
+- TypeScript
+- NativeWind (TailwindCSS)
+- React Navigation
+- React Native Maps
+- Zustand
+- React Query
+
+### Backend
+- Python 3.11+
+- FastAPI 0.104+
+- SQLAlchemy 2.0 (async)
+- PostgreSQL + asyncpg
+- Redis (cache)
+- Pydantic v2
+- JWT Authentication (python-jose)
+- Swagger/OpenAPI (automático)
+
+### DevOps
+- Git + GitHub
+- GitHub Actions (CI/CD)
+- Docker + Docker Compose
+- Vercel/Netlify (frontend)
+- Railway/Render (backend)
+- Sentry (monitoring)
+
+---
+
+## 💰 Estimativa de Custos Mensais
+
+| Serviço | Tier Gratuito | Tier Pago |
+|---------|---------------|------------|
+| **Frontend (Vercel)** | ✅ Ilimitado | - |
+| **Backend (Railway)** | $5 crédito | $10-30/mês |
+| **PostgreSQL (Supabase)** | ✅ 500MB | $25/mês |
+| **Redis (Upstash)** | ✅ 10k req/dia | $10/mês |
+| **Firebase (notificações)** | ✅ Generoso | $25/mês |
+| **Domínio** | - | R$40-80/ano |
+| **APIs Externas** | ✅ Tier gratuito | Variável |
+| **Total Inicial** | **~$5/mês** | - |
+| **Total Produção** | - | **$70-100/mês** |
+
+---
+
 ## 📝 Notas Adicionais
 
 ### Dados Mockados Atuais
@@ -131,5 +488,18 @@
 
 ---
 
-**Última atualização:** 30/10/2025  
-**Versão do projeto:** 0.0.0
+---
+
+## 🎯 Próximos Passos Imediatos
+
+1. ✅ Revisar e aprovar este plano
+2. 🔄 Executar correções críticas do frontend (Fase 1)
+3. ⚡ Iniciar estrutura do backend FastAPI
+4. 📱 Planejar arquitetura do mobile
+5. 🔄 Configurar repositório com estrutura de monorepo
+
+---
+
+**Última atualização:** 11/11/2025  
+**Versão do projeto:** 0.0.0  
+**Status:** Em desenvolvimento ativo
